@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer for studying</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://kit.fontawesome.com/7ddeed072a.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="title">
+        <h1 id="subject">Physics</h1>
+        <button id="subchange" onclick="subbutton();"> isn't it?</button>
+
+    </div>
+
+    <h1 id="timer">00:00:00</h1>
+    <button id="startBtn" onclick="start();">Start</button>
+    <button id="pauseBtn" disabled onclick="pause();">Pause</button>
+    <button id="breakBtn" disabled onclick="breaksel();">Break</button>
+
+    <div id="breaker">
+        <h3 id="time"></h3>
+        <div id="control">
+            <div id="left">
+                <button id="5minbrk" onclick="takebreak(5);">+5 min</button>
+                <button id="10minbrk" onclick="takebreak(10);">+10 min</button>
+                <button id="20minbrk" onclick="takebreak(20);">+20 min</button>
+            </div>
+            <div id="right">
+                <button id="m5minbrk" onclick="takebreak(-5);">-5 min</button>
+                <button id="m10minbrk" onclick="takebreak(-10);">-10 min</button>
+                <button id="m20minbrk" onclick="takebreak(-20);">-20 min</button>
+            </div>
+            <button id="submit" onclick="breakstart();">Submit</button> 
+        </div>
+    </div>
+
+    <script>
+    let timer = document.getElementById('timer');
+    let startbtn = document.getElementById('startBtn');
+    let pausebtn = document.getElementById('pauseBtn');
+    let breakbtn = document.getElementById('breakBtn');
+    let breaker = document.getElementById('breaker');
+
+    breaker.style.display = 'none';
+
+    let seconds = 0;
+    let minutes = 0;
+    let hours = 0;
+    let interval;
+
+    let bseconds = 0;
+    let bminutes = 0;
+    let binterval;
+
+    let subject = 0;
+
+    function subbutton() {
+        subject++;
+        if (subject > 3)
+            subject = 0;
+        switch(subject) {
+            case 0:
+                document.getElementById('subject').textContent = "Physics";
+                break;
+            case 1:
+                document.getElementById('subject').textContent = "Math";
+                break;
+            case 2:
+                document.getElementById('subject').textContent = "Informatics";
+                break;
+            case 3:
+                document.getElementById('subject').textContent = "English";
+                break;
+        }
+    }
+
+
+    let breaktoggled = false;
+
+    function takebreak(time) {
+        if (bminutes+time >= 0) {
+            bminutes += time;
+
+            let minutes, seconds;
+            if (bminutes < 10)
+                minutes = "0" + bminutes;
+            if (bseconds < 10)
+                seconds = "0" + bseconds;
+            else {
+                seconds = bseconds;
+                minutes = bminutes;
+            }
+            document.getElementById("time").textContent = `${minutes}:${seconds}`; 
+        }
+    }
+
+
+    function updateTime() {
+        seconds++;
+        if (seconds === 60) {
+            minutes++;
+            seconds = 0;
+        }
+        if (minutes === 60) {
+            hours++;
+            minutes = 0;
+        }
+        timer.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+
+    function pause() {
+        clearInterval(interval);
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        breakbtn.disabled = false;
+    }
+
+    function start() {
+        interval = setInterval(updateTime, 1000);
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+    }
+
+    function breaksel() {
+        breaktoggled = !breaktoggled;
+        if (breaktoggled == true) {
+            pause();
+            breaker.style.display = 'contents';
+            document.getElementById('left').style.display = 'inline-grid';
+            document.getElementById('right').style.display = 'inline-grid';
+        }
+        else {
+            breaker.style.display = 'none';
+            start();
+        }
+    }
+
+    function breakstart() {
+        document.getElementById('control').style.display = 'none';
+        breakbtn.disabled = true;
+        startbtn.disabled = true;
+        setInterval(function() {
+            if (bseconds+bminutes*60 == 0) {
+                var audio = new Audio('https://zvukoviku.ru/sounds/1580460839_7e031ebfd37a412.mp3');
+                audio.play();
+                breaksel();
+            }
+
+            let minutes, seconds;
+            seconds = bseconds;
+            minutes = bminutes;
+
+            if (bminutes < 10)
+                minutes = "0" + bminutes;
+            if (bseconds < 10)
+                seconds = "0" + bseconds;
+
+            document.getElementById("time").innerHTML = minutes + ":" + seconds;
+
+            if (bseconds == 0) {
+                bminutes--;
+                bseconds = 60;
+            }
+
+            bseconds--;
+
+
+        }, 1000);
+    }
+    </script>
+</body>
+</html>
